@@ -59,7 +59,6 @@
             // camera1.upperRadiusLimit = 10;
             camera1.wheelDeltaPercentage = 0.01;
 
-
             // Lights
             var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.6;
@@ -68,11 +67,7 @@
             var light2 = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(0, -0.5, -1.0), scene);
             light2.position = new BABYLON.Vector3(0, 5, 5);
             //Skybox
-            var skybox = BABYLON.MeshBuilder.CreateBox(
-                "skybox",
-                { size: 500 },
-                scene
-            );
+            var skybox = BABYLON.MeshBuilder.CreateBox("skybox", { size: 500 }, scene);
             skybox.infiniteDistance = true;
             var skyboxMaterial = new BABYLON.StandardMaterial("skybox", scene);
             skyboxMaterial.backFaceCulling = false;
@@ -84,30 +79,35 @@
                 "./img/sky.jpg",
                 "./img/sky.jpg",
             ];
-            skyboxMaterial.reflectionTexture = BABYLON.CubeTexture.CreateFromImages(
-                files,
-                scene
-            );
-            skyboxMaterial.reflectionTexture.coordinatesMode =
-                BABYLON.Texture.SKYBOX_MODE;
+            skyboxMaterial.reflectionTexture = BABYLON.CubeTexture.CreateFromImages(files, scene);
+            skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
             skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
             skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
             skybox.material = skyboxMaterial;
             // const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 150 }, scene);
             // const skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
             // skyboxMaterial.backFaceCulling = false;
-            // skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("textures/skybox", scene);
+            // skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("./img/sky.jpg", scene);
             // skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
             // skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
             // skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
             // skybox.material = skyboxMaterial;
 
+            // Enable physics
+            scene.enablePhysics();
+
             //Create large ground for valley environment
             const largeGroundMat = new BABYLON.StandardMaterial("largeGroundMat");
             largeGroundMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/valleygrass.png");
 
-            const largeGround = BABYLON.MeshBuilder.CreateGroundFromHeightMap("largeGround", "https://assets.babylonjs.com/environments/villageheightmap.png", { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 });
+            const largeGround = BABYLON.MeshBuilder.CreateGroundFromHeightMap("largeGround", "./img/map3.jpg", { width: 250, height: 250, subdivisions: 10, minHeight: 0, maxHeight: 40 });
             largeGround.material = largeGroundMat;
+
+            // add fisica ao chão
+            largeGround.physicsImpostor = new BABYLON.PhysicsImpostor(largeGround, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.7 }, scene);
+
+            // Cilindro para impedir personagem de sair da area delimitada
+            delimitador();
 
             // Keyboard events
             var inputMap = {};
@@ -118,8 +118,6 @@
             scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
                 inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
             }));
-
-
 
             // Load hero character
             BABYLON.SceneLoader.ImportMesh("", "https://assets.babylonjs.com/meshes/", "HVGirl.glb", scene, function (newMeshes, particleSystems, skeletons, animationGroups) {
@@ -206,14 +204,38 @@
                 });
             });
 
-            buildBox();
-            buildRoof();
+            // buildBox();
+            // buildRoof();
+            buildHouse();
             buildBarrel(scene);
-
-
 
             return scene;
         };
+
+        const buildHouse = () => {
+            buildBox();
+            buildRoof();
+        }
+
+        const delimitador = () => {
+
+            // Add colliders
+            //Para visualizar o delimitador
+            var collidersVisible = true;
+
+            const torusCollider = BABYLON.MeshBuilder.CreateTorus("torusCollider", { thickness: 20, diameter: 100 });
+            torusCollider.position.x = 10;
+            torusCollider.isVisible = collidersVisible;
+
+            // Create a physics root and add all children
+            var physicsRoot = new BABYLON.Mesh("", scene);
+            physicsRoot.addChild(torusCollider);
+            physicsRoot.position.y += 3;
+
+            // Enable physics on colliders first then physics root of the mesh
+            torusCollider.physicsImpostor = new BABYLON.PhysicsImpostor(torusCollider, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 0 }, scene);
+            physicsRoot.physicsImpostor = new BABYLON.PhysicsImpostor(physicsRoot, BABYLON.PhysicsImpostor.NoImpostor, { mass: 3 }, scene);
+        }
 
         const buildBox = () => {
             //texture
@@ -262,7 +284,6 @@
             });
 
         };
-
 
         window.initFunction = async function () {
             var asyncEngineCreation = async function () {
