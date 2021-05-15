@@ -47,12 +47,29 @@
         var engine = null;
         var scene = null;
         var sceneToRender = null;
-        var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false }); };
-        const createScene = function () {
+        var createDefaultEngine = function () {
+            return new BABYLON.Engine(canvas, true, {
+                preserveDrawingBuffer: true,
+                stencil: true,
+                disableWebGL2Support: false,
+            });
+        };
 
+        var general;
+
+        const createScene = function () {
             const scene = new BABYLON.Scene(engine);
 
-            var camera1 = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 4, 10, new BABYLON.Vector3(0, -5, 0), scene);
+            general = new BABYLON.Mesh("general", scene);
+
+            var camera1 = new BABYLON.ArcRotateCamera(
+                "camera1",
+                Math.PI / 2,
+                Math.PI / 4,
+                200,
+                new BABYLON.Vector3(0, -5, 0),
+                scene
+            );
             scene.activeCamera = camera1;
             scene.activeCamera.attachControl(canvas, true);
             // camera1.lowerRadiusLimit = 2;
@@ -60,14 +77,26 @@
             camera1.wheelDeltaPercentage = 0.01;
 
             // Lights
-            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+            var light = new BABYLON.HemisphericLight(
+                "light1",
+                new BABYLON.Vector3(0, 1, 0),
+                scene
+            );
             light.intensity = 0.6;
             light.specular = BABYLON.Color3.Black();
 
-            var light2 = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(0, -0.5, -1.0), scene);
+            var light2 = new BABYLON.DirectionalLight(
+                "dir01",
+                new BABYLON.Vector3(0, -0.5, -1.0),
+                scene
+            );
             light2.position = new BABYLON.Vector3(0, 5, 5);
             //Skybox
-            var skybox = BABYLON.MeshBuilder.CreateBox("skybox", { size: 500 }, scene);
+            var skybox = BABYLON.MeshBuilder.CreateBox(
+                "skybox",
+                { size: 500 },
+                scene
+            );
             skybox.infiniteDistance = true;
             var skyboxMaterial = new BABYLON.StandardMaterial("skybox", scene);
             skyboxMaterial.backFaceCulling = false;
@@ -79,8 +108,12 @@
                 "./img/sky.jpg",
                 "./img/sky.jpg",
             ];
-            skyboxMaterial.reflectionTexture = BABYLON.CubeTexture.CreateFromImages(files, scene);
-            skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+            skyboxMaterial.reflectionTexture = BABYLON.CubeTexture.CreateFromImages(
+                files,
+                scene
+            );
+            skyboxMaterial.reflectionTexture.coordinatesMode =
+                BABYLON.Texture.SKYBOX_MODE;
             skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
             skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
             skybox.material = skyboxMaterial;
@@ -98,149 +131,250 @@
 
             //Create large ground for valley environment
             const largeGroundMat = new BABYLON.StandardMaterial("largeGroundMat");
-            largeGroundMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/valleygrass.png");
+            largeGroundMat.diffuseTexture = new BABYLON.Texture(
+                "https://assets.babylonjs.com/environments/valleygrass.png"
+            );
 
-            const largeGround = BABYLON.MeshBuilder.CreateGroundFromHeightMap("largeGround", "./img/map3.jpg", { width: 250, height: 250, subdivisions: 10, minHeight: 0, maxHeight: 40 });
+            const largeGround = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
+                "largeGround",
+                "./img/map3.jpg",
+                {
+                    width: 250,
+                    height: 250,
+                    subdivisions: 10,
+                    minHeight: 0,
+                    maxHeight: 40,
+                }
+            );
             largeGround.material = largeGroundMat;
 
             // add fisica ao chão
-            largeGround.physicsImpostor = new BABYLON.PhysicsImpostor(largeGround, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.7 }, scene);
-
-            // Cilindro para impedir personagem de sair da area delimitada
-            delimitador();
+            largeGround.physicsImpostor = new BABYLON.PhysicsImpostor(
+                largeGround,
+                BABYLON.PhysicsImpostor.BoxImpostor,
+                { mass: 0, friction: 0.5, restitution: 0.7 },
+                scene
+            );
 
             // Keyboard events
             var inputMap = {};
             scene.actionManager = new BABYLON.ActionManager(scene);
-            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {
-                inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-            }));
-            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
-                inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-            }));
+            scene.actionManager.registerAction(
+                new BABYLON.ExecuteCodeAction(
+                    BABYLON.ActionManager.OnKeyDownTrigger,
+                    function (evt) {
+                        inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+                    }
+                )
+            );
+            scene.actionManager.registerAction(
+                new BABYLON.ExecuteCodeAction(
+                    BABYLON.ActionManager.OnKeyUpTrigger,
+                    function (evt) {
+                        inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+                    }
+                )
+            );
 
             // Load hero character
-            BABYLON.SceneLoader.ImportMesh("", "https://assets.babylonjs.com/meshes/", "HVGirl.glb", scene, function (newMeshes, particleSystems, skeletons, animationGroups) {
-                var hero = newMeshes[0];
+            BABYLON.SceneLoader.ImportMesh(
+                "",
+                "https://assets.babylonjs.com/meshes/",
+                "HVGirl.glb",
+                scene,
+                function (newMeshes, particleSystems, skeletons, animationGroups) {
+                    var hero = newMeshes[0];
 
-                //Scale the model down        
-                hero.scaling.scaleInPlace(0.1);
+                    hero.name = "hero";
+                    // console.log("hero.name")
+                    // console.log(hero.name)
 
-                //Lock camera on the character 
-                camera1.target = hero;
+                    //Scale the model down
+                    hero.scaling.scaleInPlace(0.1);
 
-                //Hero character variables 
-                var heroSpeed = 0.03;
-                var heroSpeedBackwards = 0.01;
-                var heroRotationSpeed = 0.1;
+                    //Lock camera on the character
+                    camera1.target = hero;
 
-                var animating = true;
+                    //Hero character variables
+                    var heroSpeed = 0.03;
+                    var heroSpeedBackwards = 0.01;
+                    var heroRotationSpeed = 0.1;
 
-                const walkAnim = scene.getAnimationGroupByName("Walking");
-                const walkBackAnim = scene.getAnimationGroupByName("WalkingBack");
-                const idleAnim = scene.getAnimationGroupByName("Idle");
-                const sambaAnim = scene.getAnimationGroupByName("Samba");
+                    var animating = true;
 
+                    scene.addMesh(hero);
 
+                    const walkAnim = scene.getAnimationGroupByName("Walking");
+                    const walkBackAnim = scene.getAnimationGroupByName("WalkingBack");
+                    const idleAnim = scene.getAnimationGroupByName("Idle");
+                    const sambaAnim = scene.getAnimationGroupByName("Samba");
 
-                //Rendering loop (executed for everyframe)
-                scene.onBeforeRenderObservable.add(() => {
-                    var keydown = false;
-                    //Manage the movements of the character (e.g. position, direction)
-                    if (inputMap["w"]) {
-                        hero.moveWithCollisions(hero.forward.scaleInPlace(heroSpeed));
-                        keydown = true;
-                    }
-                    if (inputMap["s"]) {
-                        hero.moveWithCollisions(hero.forward.scaleInPlace(-heroSpeedBackwards));
-                        keydown = true;
-                    }
-                    if (inputMap["a"]) {
-                        hero.rotate(BABYLON.Vector3.Up(), -heroRotationSpeed);
-                        keydown = true;
-                    }
-                    if (inputMap["d"]) {
-                        hero.rotate(BABYLON.Vector3.Up(), heroRotationSpeed);
-                        keydown = true;
-                    }
-                    if (inputMap["b"]) {
-                        keydown = true;
-                    }
+                    //Rendering loop (executed for everyframe)
+                    scene.onBeforeRenderObservable.add(() => {
+                        var keydown = false;
+                        //Manage the movements of the character (e.g. position, direction)
+                        if (inputMap["w"]) {
+                            hero.moveWithCollisions(hero.forward.scaleInPlace(heroSpeed));
+                            keydown = true;
+                        }
+                        if (inputMap["s"]) {
+                            hero.moveWithCollisions(
+                                hero.forward.scaleInPlace(-heroSpeedBackwards)
+                            );
+                            keydown = true;
+                        }
+                        if (inputMap["a"]) {
+                            hero.rotate(BABYLON.Vector3.Up(), -heroRotationSpeed);
+                            keydown = true;
+                        }
+                        if (inputMap["d"]) {
+                            hero.rotate(BABYLON.Vector3.Up(), heroRotationSpeed);
+                            keydown = true;
+                        }
+                        if (inputMap["b"]) {
+                            keydown = true;
+                        }
 
-                    //Manage animations to be played  
-                    if (keydown) {
-                        if (!animating) {
-                            animating = true;
-                            if (inputMap["s"]) {
-                                //Walk backwards
-                                walkBackAnim.start(true, 1.0, walkBackAnim.from, walkBackAnim.to, false);
+                        //Manage animations to be played
+                        if (keydown) {
+                            if (!animating) {
+                                animating = true;
+                                if (inputMap["s"]) {
+                                    //Walk backwards
+                                    walkBackAnim.start(
+                                        true,
+                                        1.0,
+                                        walkBackAnim.from,
+                                        walkBackAnim.to,
+                                        false
+                                    );
+                                } else if (inputMap["b"]) {
+                                    //Samba!
+                                    sambaAnim.start(
+                                        true,
+                                        1.0,
+                                        sambaAnim.from,
+                                        sambaAnim.to,
+                                        false
+                                    );
+                                } else {
+                                    //Walk
+                                    walkAnim.start(
+                                        true,
+                                        1.0,
+                                        walkAnim.from,
+                                        walkAnim.to,
+                                        false
+                                    );
+                                }
                             }
-                            else if
-                                (inputMap["b"]) {
-                                //Samba!
-                                sambaAnim.start(true, 1.0, sambaAnim.from, sambaAnim.to, false);
-                            }
-                            else {
-                                //Walk
-                                walkAnim.start(true, 1.0, walkAnim.from, walkAnim.to, false);
+                        } else {
+                            if (animating) {
+                                //Default animation is idle when no key is down
+                                idleAnim.start(true, 1.0, idleAnim.from, idleAnim.to, false);
+
+                                //Stop all animations besides Idle Anim when no key is down
+                                sambaAnim.stop();
+                                walkAnim.stop();
+                                walkBackAnim.stop();
+
+                                //Ensure animation are played only once per rendering loop
+                                animating = false;
                             }
                         }
-                    }
-                    else {
+                    });
 
-                        if (animating) {
-                            //Default animation is idle when no key is down     
-                            idleAnim.start(true, 1.0, idleAnim.from, idleAnim.to, false);
 
-                            //Stop all animations besides Idle Anim when no key is down
-                            sambaAnim.stop();
-                            walkAnim.stop();
-                            walkBackAnim.stop();
 
-                            //Ensure animation are played only once per rendering loop
-                            animating = false;
-                        }
-                    }
-                });
+                }
+            );
+
+            scene.registerBeforeRender(function () {
+                // const hero = scene.getMeshByName("hero");
+                // console.log(hero); // não sei mas não pega o hero aqui fora
+
+                // if (hero.intersectsMesh(scene.getMeshByName("house1"), true)) {
+                //     console.log("colidiu");
+                // }
+
+                // //Balloon 1 intersection -- Precise = false
+                // if (balloon1.intersectsMesh(plan1, false)) {
+                //     balloon1.material.emissiveColor = new BABYLON.Color3(1, 0, 0);
+                // } else {
+                //     balloon1.material.emissiveColor = new BABYLON.Color3(1, 1, 1);
+                // }
+
+                // //Balloon 2 intersection -- Precise = true
+                // if (balloon2.intersectsMesh(plan2, true)) {
+                //     balloon2.material.emissiveColor = new BABYLON.Color3(1, 0, 0);
+                // } else {
+                //     balloon2.material.emissiveColor = new BABYLON.Color3(1, 1, 1);
+                // }
+
+                // //balloon 3 intersection on single point
+                // if (balloon3.intersectsPoint(pointToIntersect)) {
+                //     balloon3.material.emissiveColor = new BABYLON.Color3(1, 0, 0);
+                // } else {
+                //     balloon3.material.emissiveColor = new BABYLON.Color3(1, 1, 1);
+                // }
+
+                // alpha += 0.01;
+                // balloon1.position.y += Math.cos(alpha) / 10;
+                // balloon2.position.y = balloon1.position.y;
+                // balloon3.position.y = balloon1.position.y;
             });
 
-            // buildBox();
-            // buildRoof();
-            buildHouse();
-            buildBarrel(scene);
+            buildVille();
+            multipleBarrel(scene, 30);
+
+            //pegar get por nome, da para usar isso para fazer os collider
+            console.log(scene.getMeshByName("house1"))
 
             return scene;
         };
 
-        const buildHouse = () => {
-            buildBox();
-            buildRoof();
+        const multipleBarrel = (scene, qtd) => {
+            var min1, min2, max1, max2;
+            min1 = min2 = 5;
+            max1 = max2 = 30;
+            for (let i = 0; i < qtd; i++) {
+                if (i % 2 == 0) {
+                    min1 *= -1;
+                    max2 *= -1;
+                } else {
+                    max1 *= -1;
+                    min2 *= -1;
+                }
+                var a = Math.random() * (max1 - min1) + min1;
+                var b = Math.random() * (max2 - min2) + min2;
+                buildBarrel(scene, a, b);
+            }
+        }
+        const buildVille = () => {
+            // primeiro numero é o ID, para identificar os nomes dos meshes
+            buildHouse(1, 0, 0, 0);
+            buildHouse(2, -10, 0, 2);
+            buildHouse(3, 0, 20, 4);
+            buildHouse(4, -5, -10, 1);
+            buildHouse(5, -10, 20, 6);
         }
 
-        const delimitador = () => {
+        const buildHouse = (id, posx, posz, roty) => {
+            var newMesh = new BABYLON.Mesh(`house${id}`, scene);
+            newMesh.addChild(buildBox(id));
+            newMesh.addChild(buildRoof(id));
+            newMesh.position.x = posx;
+            newMesh.position.z = posz;
+            newMesh.rotation.y = roty;
+            return newMesh;
+        };
 
-            // Add colliders
-            //Para visualizar o delimitador
-            var collidersVisible = true;
-
-            const torusCollider = BABYLON.MeshBuilder.CreateTorus("torusCollider", { thickness: 20, diameter: 100 });
-            torusCollider.position.x = 10;
-            torusCollider.isVisible = collidersVisible;
-
-            // Create a physics root and add all children
-            var physicsRoot = new BABYLON.Mesh("", scene);
-            physicsRoot.addChild(torusCollider);
-            physicsRoot.position.y += 3;
-
-            // Enable physics on colliders first then physics root of the mesh
-            torusCollider.physicsImpostor = new BABYLON.PhysicsImpostor(torusCollider, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 0 }, scene);
-            physicsRoot.physicsImpostor = new BABYLON.PhysicsImpostor(physicsRoot, BABYLON.PhysicsImpostor.NoImpostor, { mass: 3 }, scene);
-        }
-
-        const buildBox = () => {
+        const buildBox = (id) => {
             //texture
             const boxMat = new BABYLON.StandardMaterial("boxMat");
-            boxMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/cubehouse.png")
+            boxMat.diffuseTexture = new BABYLON.Texture(
+                "https://assets.babylonjs.com/environments/cubehouse.png"
+            );
 
             //options parameter to set different images on each side
             const faceUV = [];
@@ -251,38 +385,65 @@
             // top 4 and bottom 5 not seen so not set
 
             /**** World Objects *****/
-            const box = BABYLON.MeshBuilder.CreateBox("box", { width: 12, height: 8, depth: 5, faceUV: faceUV, wrap: true });
+            const box = BABYLON.MeshBuilder.CreateBox(`boxHouse${id}`, {
+                width: 12,
+                height: 8,
+                depth: 5,
+                faceUV: faceUV,
+                wrap: true,
+            });
             box.material = boxMat;
             box.position.y = 4;
             box.position.x = 22;
             return box;
-        }
+        };
 
-        const buildRoof = () => {
+        const buildRoof = (id) => {
             //texture
             const roofMat = new BABYLON.StandardMaterial("roofMat");
-            roofMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/roof.jpg");
+            roofMat.diffuseTexture = new BABYLON.Texture(
+                "https://assets.babylonjs.com/environments/roof.jpg"
+            );
 
-            const roof = BABYLON.MeshBuilder.CreateCylinder("roof", { diameter: 6, height: 12.2, tessellation: 3 });
+            const roof = BABYLON.MeshBuilder.CreateCylinder(`roofHouse${id}`, {
+                diameter: 6,
+                height: 12.2,
+                tessellation: 3,
+            });
             roof.material = roofMat;
             roof.scaling.x = 0.75;
             roof.rotation.z = Math.PI / 2;
             roof.position.y = 9;
             roof.position.x = 22;
             return roof;
-        }
+        };
 
-        const buildBarrel = (scene) => {
+        const buildBarrel = (scene, posx, posz) => {
+            BABYLON.SceneLoader.ImportMesh(
+                "",
+                "https://models.babylonjs.com/",
+                "ExplodingBarrel.glb",
+                scene,
+                function (newMeshes, particleSystems, skeletons, animationGroups) {
+                    var barrel = newMeshes[0];
+                    barrel.name = "barriu";
 
-            BABYLON.SceneLoader.ImportMesh("", "https://models.babylonjs.com/", "ExplodingBarrel.glb", scene, function (newMeshes, particleSystems, skeletons, animationGroups) {
-                var barrel = newMeshes[0];
-                barrel.name = name;
+                    barrel.position.x = posx;
+                    barrel.position.z = posz;
 
-                barrel.scaling.scaleInPlace(0.02);
+                    const cylinder = BABYLON.MeshBuilder.CreateCylinder("cBarrel", { height: 2 });
 
-                scene.addMesh(barrel);
-            });
+                    cylinder.position = barrel.position;
+                    cylinder.addChild(barrel);
 
+                    // Remove o mesh da scene, como o cylider tem o barrel como filho ele vai junto
+                    // cylinder.dispose();
+
+                    barrel.scaling.scaleInPlace(0.02);
+
+                    scene.addMesh(barrel);
+                }
+            );
         };
 
         window.initFunction = async function () {
@@ -290,17 +451,19 @@
                 try {
                     return createDefaultEngine();
                 } catch (e) {
-                    console.log("the available createEngine function failed. Creating the default engine instead");
+                    console.log(
+                        "the available createEngine function failed. Creating the default engine instead"
+                    );
                     return createDefaultEngine();
                 }
-            }
+            };
 
             window.engine = await asyncEngineCreation();
-            if (!engine) throw 'engine should not be null.';
+            if (!engine) throw "engine should not be null.";
             window.scene = createScene();
         };
         initFunction().then(() => {
-            sceneToRender = scene
+            sceneToRender = scene;
             engine.runRenderLoop(function () {
                 if (sceneToRender && sceneToRender.activeCamera) {
                     sceneToRender.render();
