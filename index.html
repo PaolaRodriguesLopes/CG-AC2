@@ -45,6 +45,7 @@
         var canvas = document.getElementById("renderCanvas");
         var walked = false;
         var hero = null;
+        var area
 
         var engine = null;
         var scene = null;
@@ -217,16 +218,20 @@
                         walked = false;
                         //Manage the movements of the character (e.g. position, direction)
                         if (inputMap["w"]) {
-                            hero.moveWithCollisions(hero.forward.scaleInPlace(heroSpeed));
-                            keydown = true;
-                            walked = true;
+                            if(isValidPosition (heroSpeed)){
+                                hero.moveWithCollisions(hero.forward.scaleInPlace(heroSpeed));
+                                keydown = true;
+                                walked = true;
+                            }                            
                         }
                         if (inputMap["s"]) {
-                            hero.moveWithCollisions(
-                                hero.forward.scaleInPlace(-heroSpeedBackwards)
-                            );
-                            keydown = true;
-                            walked = true;
+                            if(isValidPosition (heroSpeed)){
+                                    hero.moveWithCollisions(
+                                    hero.forward.scaleInPlace(-heroSpeedBackwards)
+                                );
+                                keydown = true;
+                                walked = true;
+                            }                            
                         }
                         if (inputMap["a"]) {
                             hero.rotate(BABYLON.Vector3.Up(), -heroRotationSpeed);
@@ -299,47 +304,7 @@
                 }
             );
 
-            scene.registerBeforeRender(function () {
-                // const hero = scene.getMeshByName("hero");
-                // console.log(hero); // não sei mas não pega o hero aqui fora
-
-                // if (hero.intersectsMesh(scene.getMeshByName("house1"), true)) {
-                //     console.log("colidiu");
-                // }
-
-                // //Balloon 1 intersection -- Precise = false
-                // if (balloon1.intersectsMesh(plan1, false)) {
-                //     balloon1.material.emissiveColor = new BABYLON.Color3(1, 0, 0);
-                // } else {
-                //     balloon1.material.emissiveColor = new BABYLON.Color3(1, 1, 1);
-                // }
-
-                // //Balloon 2 intersection -- Precise = true
-                // if (balloon2.intersectsMesh(plan2, true)) {
-                //     balloon2.material.emissiveColor = new BABYLON.Color3(1, 0, 0);
-                // } else {
-                //     balloon2.material.emissiveColor = new BABYLON.Color3(1, 1, 1);
-                // }
-
-                // //balloon 3 intersection on single point
-                // if (balloon3.intersectsPoint(pointToIntersect)) {
-                //     balloon3.material.emissiveColor = new BABYLON.Color3(1, 0, 0);
-                // } else {
-                //     balloon3.material.emissiveColor = new BABYLON.Color3(1, 1, 1);
-                // }
-
-                // alpha += 0.01;
-                // balloon1.position.y += Math.cos(alpha) / 10;
-                // balloon2.position.y = balloon1.position.y;
-                // balloon3.position.y = balloon1.position.y;
-                // var tes = scene.getMeshByName("hero");
-                // // // var tes2 = scene.getMeshByName("barriu");
-                // console.log("tes")
-                // console.log(tes._position)
-                // // console.log(scene.getMeshByName("hause1"))
-            });
-
-            buildVille();
+            // buildVille();
             multipleBarrel(scene, 30);
 
             //pegar get por nome, da para usar isso para fazer os collider
@@ -470,9 +435,20 @@
             );
         };
 
-        const setExplosion = function (barrel, cylinder, position) {
-            
+        const isValidPosition = (heroSpeed) => {
+       
+            const heroScale = hero.forward.scaleInPlace(heroSpeed);
+            const zIndex = heroScale.z < 0 ? -1 : 1;
+            const xIndex = heroScale.x < 0 ? -1 : 1;
+        
+            const nextPositionZ = hero.position.z + heroSpeed * zIndex;
+            const nextPositionX = hero.position.x + heroSpeed * xIndex;
+        
+            const radius = Math.sqrt(Math.pow(nextPositionX,2) + Math.pow(nextPositionZ,2));
+            return radius <= 30.5;
+        }
 
+        const setExplosion = function (barrel, cylinder, position) {
             // Make explosion sound
             const bounce = new BABYLON.Sound("bounce", "./sounds/Explosion-with-Metal-Debris.mp3", scene,
                 null, {
