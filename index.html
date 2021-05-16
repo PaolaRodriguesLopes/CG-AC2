@@ -37,7 +37,9 @@
             touch-action: none;
         }
         .title {
-            position: absolute;
+            position: absolute;           
+        }
+        .format {
             background: #00000069;
             color: #ffffff;
             padding: 15px;
@@ -46,13 +48,28 @@
             font-family: Arial, Helvetica, sans-serif;
             text-align: center;
         }
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;           
+        }
+        .btn {
+            text-decoration: none;
+            background: yellow;
+            color: black;
+            padding: 10px;
+        }
     </style>
 </head>
 
 <body>
-    <div class="title">
+    <div class="title format">
         Michel Micheloti 181003 | Paola Rodrigues Lopes 180115
-    </div>  
+    </div> 
+    <div class="footer format">
+        <p id="message"></p>
+        <a class="btn" id="btnReload" href="/index.html" style="display: none;">Recomeçar</a>
+      </div> 
     <canvas id="renderCanvas"></canvas>
     <script>
         var canvas = document.getElementById("renderCanvas");
@@ -60,8 +77,10 @@
         var hero = null;
         var area;
         var items = null;
-
+        var count = 0;
+        var camera1 = null;
         var engine = null;
+        var sambaAnim = null;
         var scene = null;
         var sceneToRender = null;
         var createDefaultEngine = function () {
@@ -79,7 +98,7 @@
 
             general = new BABYLON.Mesh("general", scene);
 
-            var camera1 = new BABYLON.ArcRotateCamera(
+            camera1 = new BABYLON.ArcRotateCamera(
                 "camera1",
                 Math.PI / 2,
                 Math.PI / 4,
@@ -217,7 +236,7 @@
                     const walkAnim = scene.getAnimationGroupByName("Walking");
                     const walkBackAnim = scene.getAnimationGroupByName("WalkingBack");
                     const idleAnim = scene.getAnimationGroupByName("Idle");
-                    const sambaAnim = scene.getAnimationGroupByName("Samba");
+                    sambaAnim = scene.getAnimationGroupByName("Samba");
 
                     //Rendering loop (executed for everyframe)
                     scene.onBeforeRenderObservable.add(() => {
@@ -305,17 +324,19 @@
                             }
                         }
                     });
-
-
-
                 }
             );
-
-            // buildVille();
-            multipleBarrel(scene, 30);
-            loadItems(scene)
+            
+            loadItems(scene);
+            multipleBarrel(scene, 15);
+            buildMessage();
             return scene;
         };
+
+        const buildMessage = () => {
+            let currentItem = items[count];
+            document.getElementById("message").innerHTML = `${currentItem.id} - Encontre ${currentItem.name}`
+        }
 
         const multipleBarrel = (scene, qtd) => {
             var min1, min2, max1, max2;
@@ -334,74 +355,7 @@
                 buildBarrel(scene, a, b);
             }
         }
-        const buildVille = () => {
-            // primeiro numero é o ID, para identificar os nomes dos meshes
-            buildHouse(1, 0, 0, 0);
-            buildHouse(2, -10, 0, 2);
-            buildHouse(3, 0, 20, 4);
-            buildHouse(4, -5, -10, 1);
-            buildHouse(5, -10, 20, 6);
-        }
-
-        const buildHouse = (id, posx, posz, roty) => {
-            var newMesh = new BABYLON.Mesh(`house${id}`, scene);
-            newMesh.addChild(buildBox(id));
-            newMesh.addChild(buildRoof(id));
-            newMesh.position.x = posx;
-            newMesh.position.z = posz;
-            newMesh.rotation.y = roty;
-            return newMesh;
-        };
-
-        const buildBox = (id) => {
-            //texture
-            const boxMat = new BABYLON.StandardMaterial("boxMat");
-            boxMat.diffuseTexture = new BABYLON.Texture(
-                "https://assets.babylonjs.com/environments/cubehouse.png"
-            );
-
-            //options parameter to set different images on each side
-            const faceUV = [];
-            faceUV[0] = new BABYLON.Vector4(0.6, 0.0, 1.0, 1.0); //rear face
-            faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 0.4, 1.0); //front face
-            faceUV[2] = new BABYLON.Vector4(0.4, 0, 0.6, 1.0); //right side
-            faceUV[3] = new BABYLON.Vector4(0.4, 0, 0.6, 1.0); //left side
-            // top 4 and bottom 5 not seen so not set
-
-            /**** World Objects *****/
-            const box = BABYLON.MeshBuilder.CreateBox(`boxHouse${id}`, {
-                width: 12,
-                height: 8,
-                depth: 5,
-                faceUV: faceUV,
-                wrap: true,
-            });
-            box.material = boxMat;
-            box.position.y = 4;
-            box.position.x = 22;
-            return box;
-        };
-
-        const buildRoof = (id) => {
-            //texture
-            const roofMat = new BABYLON.StandardMaterial("roofMat");
-            roofMat.diffuseTexture = new BABYLON.Texture(
-                "https://assets.babylonjs.com/environments/roof.jpg"
-            );
-
-            const roof = BABYLON.MeshBuilder.CreateCylinder(`roofHouse${id}`, {
-                diameter: 6,
-                height: 12.2,
-                tessellation: 3,
-            });
-            roof.material = roofMat;
-            roof.scaling.x = 0.75;
-            roof.rotation.z = Math.PI / 2;
-            roof.position.y = 9;
-            roof.position.x = 22;
-            return roof;
-        };
-
+   
         const buildBarrel = (scene, posx, posz) => {
             BABYLON.SceneLoader.ImportMesh(
                 "",
@@ -414,7 +368,7 @@
                     barrel.position.x = posx;
                     barrel.position.z = posz;
 
-                    const cylinder = BABYLON.MeshBuilder.CreateCylinder("cBarrel", { height: 3 });
+                    const cylinder = BABYLON.MeshBuilder.CreateCylinder(`cBarrel${posx}${posz}`, { height: 3 });
 
                     cylinder.position = barrel.position;
                     cylinder.addChild(barrel);
@@ -469,7 +423,6 @@
         }
 
         const setParticules = function (position) {
-            console.log(position)
             var count = 0;
             BABYLON.ParticleHelper.CreateAsync("explosion", scene).then((set) => {
                 set.systems.forEach(s => {
@@ -478,6 +431,44 @@
                 });
                 set.start();
             });          
+        }
+
+        const createParticle = (item) => {
+            var radius = 2;
+            var angle = Math.PI / 3;
+            var particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
+
+            //Texture of each particle
+            particleSystem.particleTexture = new BABYLON.Texture("./img/flare.png", scene);
+
+            // Where the particles come from
+            particleSystem.emitter = new BABYLON.Vector3(item.posx, item.posy, item.posz);
+
+            // Colors of all particles
+            particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
+            particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
+            particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
+
+            // Size of each particle (random between...
+            particleSystem.minSize = 0.1;
+            particleSystem.maxSize = 0.5;
+
+            // Emission rate
+            particleSystem.emitRate = 500;
+
+            /******* Emission Space ********/
+            particleSystem.createConeEmitter(radius, angle);
+
+            // Speed
+            particleSystem.minEmitPower = 2;
+            particleSystem.maxEmitPower = 4;
+            particleSystem.updateSpeed = 0.005;
+
+            particleSystem.targetStopDuration = 2;
+
+            // Start the particle system
+            particleSystem.start();
+
         }
 
         items = [
@@ -495,18 +486,6 @@
             },
             {
                 id: 2,
-                name: "o disco voador",
-                posx: 10,
-                posz: 5,
-                posy: 0.5,
-                variante: 0,
-                varianteX: 0,
-                scale: 1,
-                url: "https://models.babylonjs.com/",
-                glb: "ufo.glb"
-            },
-            {
-                id: 3,
                 name: "o ventilador",
                 posx: 25,
                 posz: 5,
@@ -518,7 +497,7 @@
                 glb: "vintageFan_animated.gltf"
             },
             {
-                id: 4,
+                id: 3,
                 name: "o tubarão",
                 posx: 5,
                 posz: 20,
@@ -530,7 +509,7 @@
                 glb: "shark.glb"
             },
             {
-                id: 5,
+                id: 4,
                 name: "o avião",
                 posx: 15,
                 posz: 20,
@@ -542,7 +521,7 @@
                 glb: "aerobatic_plane.glb"
             },
             {
-                id: 6,
+                id: 5,
                 name: "o coração",
                 posx: -15,
                 posz: 20,
@@ -554,7 +533,7 @@
                 glb: "emoji_heart.glb"
             },
             {
-                id: 7,
+                id: 6,
                 name: "a bola azul",
                 posx: -15,
                 posz: -20,
@@ -566,7 +545,7 @@
                 glb: "marble.gltf"
             },
             {
-                id: 8,
+                id: 7,
                 name: "o alien",
                 posx: 5,
                 posz: -20,
@@ -578,7 +557,7 @@
                 glb: "alien.glb"
             },
             {
-                id: 9,
+                id: 8,
                 name: "a torradeira",
                 posx: -5,
                 posz: -10,
@@ -590,7 +569,7 @@
                 glb: "toast_acrobatics.glb"
             },
             {
-                id: 10,
+                id: 9,
                 name: "a bola branca",
                 posx: -10,
                 posz: -25,
@@ -600,6 +579,18 @@
                 scale: 0.5,
                 url: "https://models.babylonjs.com/",
                 glb: "shaderBall.glb"
+            },
+            {
+                id: 10,
+                name: "o disco voador",
+                posx: 10,
+                posz: 5,
+                posy: 0.5,
+                variante: 0,
+                varianteX: 0,
+                scale: 1,
+                url: "https://models.babylonjs.com/",
+                glb: "ufo.glb"
             },
         ];
 
@@ -616,38 +607,85 @@
                     itemsToCollect.position.z = item.posz;
                     itemsToCollect.position.y = item.posy;
 
-                    const cylinderItems = BABYLON.MeshBuilder.CreateCylinder("cylinderItems", { height: 3 });
+                    let cylinderItems = BABYLON.MeshBuilder.CreateCylinder(`collectBody${item.id}`, { height: 3 });
 
                     cylinderItems.position.x = item.posx + item.varianteX;
                     cylinderItems.position.z = item.posz + item.variante;
-                    cylinderItems.position.y = 1;
-                    cylinderItems.addChild(itemsToCollect);
+                    cylinderItems.position.y = 1.5;
                     cylinderItems.isVisible = false;
-
-                    // var explosied = false;
-                    // scene.onBeforeRenderObservable.add(() => {
-                    //     if (!explosied) {
-                    //         if (cylinder.intersectsMesh(hero, true)) {
-                    //             if (walked) {
-                    //                 setExplosion(barrel, cylinder, hero._position);
-                    //                 explosied = true;
-                    //             }
-                    //         }
-                    //     }
-                    // });
+                    cylinderItems.addChild(itemsToCollect);
+                    
 
                     itemsToCollect.scaling.scaleInPlace(item.scale);
 
                     scene.addMesh(itemsToCollect);
+
+                    var collected = false;
+                    scene.onBeforeRenderObservable.add(() => {
+                        if (!collected) {
+                            if (cylinderItems.intersectsMesh(hero, true)) {
+                                if (walked) {
+                                    collected = disposeItems(itemsToCollect, cylinderItems, item);
+                                }
+                            }
+                        }
+                    });
+                   
                 }
             );
         };
+
+        const disposeItems = (itemsToCollect, cylinderItems, item) => {     
+
+            if ((count + 1) === item.id) {
+                const bounce = new BABYLON.Sound("bounce", "./sounds/POP.mp3", scene,
+                null, {
+                    loop: false,
+                    autoplay: true
+                });
+                itemsToCollect.dispose();
+                cylinderItems.dispose();
+                createParticle(item);
+
+                count += 1;
+                if (count <= 9){
+                    buildMessage();
+                } else{
+                    endGame();
+                }                                
+                return true;
+            }            
+            return false;
+        }
+
+        const endGame = () =>{
+            document.getElementById("btnReload").style.display = "block";
+            document.getElementById("message").innerHTML = "Fim de Jogo!";
+
+            const bounce = new BABYLON.Sound("bounce", "./sounds/endGame.mp3", scene,
+                null, {
+                    loop: false,
+                    autoplay: true
+                });
+
+            //Lock camera on the character 
+            camera1.target = hero;
+
+            //Get the Samba animation Group
+            sambaAnim.start(
+                        true,
+                        1.0,
+                        sambaAnim.from,
+                        sambaAnim.to,
+                        false
+                    );
+        }
 
         const loadItems = (scene) => {
             for (let i = 0; i<10; i++){
                 createItems(scene,items[i]);                
             }
-        };
+        };     
 
         window.initFunction = async function () {
             var asyncEngineCreation = async function () {
