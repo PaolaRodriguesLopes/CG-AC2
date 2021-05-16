@@ -36,16 +36,30 @@
             height: 100%;
             touch-action: none;
         }
+        .title {
+            position: absolute;
+            background: #00000069;
+            color: #ffffff;
+            padding: 15px;
+            width: 100%;
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
+    <div class="title">
+        Michel Micheloti 181003 | Paola Rodrigues Lopes 180115
+    </div>  
     <canvas id="renderCanvas"></canvas>
     <script>
         var canvas = document.getElementById("renderCanvas");
         var walked = false;
         var hero = null;
-        var area
+        var area;
+        var items = null;
 
         var engine = null;
         var scene = null;
@@ -120,14 +134,7 @@
             skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
             skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
             skybox.material = skyboxMaterial;
-            // const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 150 }, scene);
-            // const skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
-            // skyboxMaterial.backFaceCulling = false;
-            // skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("./img/sky.jpg", scene);
-            // skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-            // skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-            // skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-            // skybox.material = skyboxMaterial;
+           
 
             // Enable physics
             scene.enablePhysics();
@@ -306,10 +313,7 @@
 
             // buildVille();
             multipleBarrel(scene, 30);
-
-            //pegar get por nome, da para usar isso para fazer os collider
-            console.log(scene.getMeshByName("hero"))
-
+            loadItems(scene)
             return scene;
         };
 
@@ -475,6 +479,175 @@
                 set.start();
             });          
         }
+
+        items = [
+            {
+                id: 1,
+                name: "a gaivota de fone",
+                posx: 20,
+                posz: 10,
+                posy: 0.5,
+                scale: 0.001,
+                varianteX: 0,
+                variante: 0.5,
+                url: "https://models.babylonjs.com/",
+                glb: "seagulf.glb"
+            },
+            {
+                id: 2,
+                name: "o disco voador",
+                posx: 10,
+                posz: 5,
+                posy: 0.5,
+                variante: 0,
+                varianteX: 0,
+                scale: 1,
+                url: "https://models.babylonjs.com/",
+                glb: "ufo.glb"
+            },
+            {
+                id: 3,
+                name: "o ventilador",
+                posx: 25,
+                posz: 5,
+                posy: 0,
+                variante: 0,
+                varianteX: 0,
+                scale: 0.02,
+                url: "https://models.babylonjs.com/vintageDeskFan/",
+                glb: "vintageFan_animated.gltf"
+            },
+            {
+                id: 4,
+                name: "o tubarão",
+                posx: 5,
+                posz: 20,
+                posy: 0,
+                variante: 0,
+                varianteX: 0,
+                scale: 0.1,
+                url: "https://models.babylonjs.com/",
+                glb: "shark.glb"
+            },
+            {
+                id: 5,
+                name: "o avião",
+                posx: 15,
+                posz: 20,
+                posy: 0,
+                variante: 0,
+                varianteX: 0,
+                scale: 6,
+                url: "https://models.babylonjs.com/",
+                glb: "aerobatic_plane.glb"
+            },
+            {
+                id: 6,
+                name: "o coração",
+                posx: -15,
+                posz: 20,
+                posy: 0,
+                variante: 0,
+                varianteX: 0,
+                scale: 10,
+                url: "https://models.babylonjs.com/",
+                glb: "emoji_heart.glb"
+            },
+            {
+                id: 7,
+                name: "a bola azul",
+                posx: -15,
+                posz: -20,
+                posy: 0.4,
+                varianteX: 0,
+                variante: 0,
+                scale: 1,
+                url: "https://models.babylonjs.com/Marble/marble/",
+                glb: "marble.gltf"
+            },
+            {
+                id: 8,
+                name: "o alien",
+                posx: 5,
+                posz: -20,
+                posy: 1,
+                varianteX: 0,
+                variante: -0.2,
+                scale: 1.5,
+                url: "https://models.babylonjs.com/",
+                glb: "alien.glb"
+            },
+            {
+                id: 9,
+                name: "a torradeira",
+                posx: -5,
+                posz: -10,
+                posy: 0,
+                varianteX: -0.8,
+                variante: 0,
+                scale: 3,
+                url: "https://models.babylonjs.com/",
+                glb: "toast_acrobatics.glb"
+            },
+            {
+                id: 10,
+                name: "a bola branca",
+                posx: -10,
+                posz: -25,
+                posy: 0.4,
+                varianteX: 0,
+                variante: 0,
+                scale: 0.5,
+                url: "https://models.babylonjs.com/",
+                glb: "shaderBall.glb"
+            },
+        ];
+
+        const createItems = (scene, item) => {
+            BABYLON.SceneLoader.ImportMesh(
+                "",
+                item.url,
+                item.glb,
+                scene,
+                function (newMeshes, particleSystems, skeletons, animationGroups) {
+                    var itemsToCollect = newMeshes[0];
+
+                    itemsToCollect.position.x = item.posx;
+                    itemsToCollect.position.z = item.posz;
+                    itemsToCollect.position.y = item.posy;
+
+                    const cylinderItems = BABYLON.MeshBuilder.CreateCylinder("cylinderItems", { height: 3 });
+
+                    cylinderItems.position.x = item.posx + item.varianteX;
+                    cylinderItems.position.z = item.posz + item.variante;
+                    cylinderItems.position.y = 1;
+                    cylinderItems.addChild(itemsToCollect);
+                    cylinderItems.isVisible = false;
+
+                    // var explosied = false;
+                    // scene.onBeforeRenderObservable.add(() => {
+                    //     if (!explosied) {
+                    //         if (cylinder.intersectsMesh(hero, true)) {
+                    //             if (walked) {
+                    //                 setExplosion(barrel, cylinder, hero._position);
+                    //                 explosied = true;
+                    //             }
+                    //         }
+                    //     }
+                    // });
+
+                    itemsToCollect.scaling.scaleInPlace(item.scale);
+
+                    scene.addMesh(itemsToCollect);
+                }
+            );
+        };
+
+        const loadItems = (scene) => {
+            for (let i = 0; i<10; i++){
+                createItems(scene,items[i]);                
+            }
+        };
 
         window.initFunction = async function () {
             var asyncEngineCreation = async function () {
