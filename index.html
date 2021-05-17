@@ -87,7 +87,7 @@
         var sambaAnim = null;
         var scene = null;
         var sceneToRender = null;
-        var cylinderItems = null;
+        // var cylinderItems = null;
         var createDefaultEngine = function () {
             return new BABYLON.Engine(canvas, true, {
                 preserveDrawingBuffer: true,
@@ -612,31 +612,31 @@
                     itemsToCollect.position.z = item.posz;
                     itemsToCollect.position.y = item.posy;
 
-                    itemsToCollect.name = item.name;
+                    // itemsToCollect.name = item.name;
 
-                    cylinderItems = BABYLON.MeshBuilder.CreateCylinder(`collectBody${item.id}`, { height: 3 });
+                    var cylinderItems = BABYLON.MeshBuilder.CreateCylinder(`collectBody${item.id}`, { height: 3 });
 
                     cylinderItems.position.x = item.posx + item.varianteX;
                     cylinderItems.position.z = item.posz + item.variante;
                     cylinderItems.position.y = 1.5;
-                    cylinderItems.isVisible = false;
+                    cylinderItems.isVisible = true;
                     cylinderItems.addChild(itemsToCollect);
 
                     itemsToCollect.scaling.scaleInPlace(item.scale);
+
+                    scene.addMesh(itemsToCollect);
 
                     var collected = false;
                     scene.onBeforeRenderObservable.add(() => {
                         if (!collected) {
                             if (cylinderItems.intersectsMesh(hero, true)) {
+                                console.log("Coletou")
                                 if (walked) {
                                     collected = disposeItems(itemsToCollect, cylinderItems, item);
                                 }
                             }
                         }
                     });
-
-                    scene.addMesh(itemsToCollect);
-
                 }
             );
         };
@@ -645,9 +645,6 @@
             for (let i = 0; i < 10; i++) {
                 createItems(scene, items[i]);
             }
-            // createItems(scene, items[1]);
-            // createItems(scene, items[2]);
-            // createItems(scene, items[3]);
         };
 
         const disposeItems = (itemsToCollect, cylinderItems, item) => {
