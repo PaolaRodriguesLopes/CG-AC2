@@ -85,11 +85,8 @@
         var camera1 = null;
         var engine = null;
         var sambaAnim = null;
-        var walkAnim = null;
-        var walkBackAnim = null;
         var scene = null;
         var sceneToRender = null;
-        // var cylinderItems = null;
         var createDefaultEngine = function () {
             return new BABYLON.Engine(canvas, true, {
                 preserveDrawingBuffer: true,
@@ -222,8 +219,6 @@
                     hero = newMeshes[0];
 
                     hero.name = "hero";
-                    // console.log("hero.name")
-                    // console.log(hero.name)
 
                     //Scale the model down
                     hero.scaling.scaleInPlace(0.1);
@@ -240,8 +235,8 @@
 
                     scene.addMesh(hero);
 
-                    walkAnim = scene.getAnimationGroupByName("Walking");
-                    walkBackAnim = scene.getAnimationGroupByName("WalkingBack");
+                    const walkAnim = scene.getAnimationGroupByName("Walking");
+                    const walkBackAnim = scene.getAnimationGroupByName("WalkingBack");
                     const idleAnim = scene.getAnimationGroupByName("Idle");
                     sambaAnim = scene.getAnimationGroupByName("Samba");
 
@@ -322,7 +317,7 @@
                                 idleAnim.start(true, 1.0, idleAnim.from, idleAnim.to, false);
 
                                 //Stop all animations besides Idle Anim when no key is down
-                                // sambaAnim.stop();
+                                sambaAnim.stop();
                                 walkAnim.stop();
                                 walkBackAnim.stop();
 
@@ -330,6 +325,18 @@
                                 animating = false;
                             }
                         }
+                        var collected = false;
+                        for (var i = 1; i <= 10; i++) {
+                            var collect = scene.getMeshByName('collectBody' + i);
+                            var itemCollected = scene.getMeshByName(i);
+                            if (collect != null) {
+                                if (collect.intersectsMesh(hero)) {
+                                    disposeItems(itemCollected,collect, items[i-1]);
+                                }
+                            }
+
+                        }
+                        //console.log(aux);
                     });
                 }
             );
@@ -337,8 +344,6 @@
             loadItems(scene);
             multipleBarrel(scene, 15);
             buildMessage();
-            // console.log(scene.getMeshByName("alien"))
-            // console.log(scene)
             return scene;
         };
 
@@ -458,12 +463,13 @@
             particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
             particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
 
-            // Size of each particle
+            // Size of each particle (random between...
             particleSystem.minSize = 0.1;
             particleSystem.maxSize = 0.5;
 
             // Emission rate
             particleSystem.emitRate = 500;
+
             /******* Emission Space ********/
             particleSystem.createConeEmitter(radius, angle);
 
@@ -476,32 +482,33 @@
 
             // Start the particle system
             particleSystem.start();
+
         }
 
         items = [
             {
                 id: 1,
-                name: "a calota de carro",
+                name: "a gaivota de fone",
                 posx: 20,
                 posz: 10,
                 posy: 0.5,
-                scale: 2,
+                scale: 0.001,
                 varianteX: 0,
                 variante: 0.5,
                 url: "https://models.babylonjs.com/",
-                glb: "CarbonFiberWheel.glb",
+                glb: "seagulf.glb"
             },
             {
                 id: 2,
-                name: "a cortina de bolinha",
+                name: "o ventilador",
                 posx: 25,
                 posz: 5,
                 posy: 0,
                 variante: 0,
                 varianteX: 0,
-                scale: 5,
-                url: "https://models.babylonjs.com/",
-                glb: "PBR_Spheres.glb",
+                scale: 0.02,
+                url: "https://models.babylonjs.com/vintageDeskFan/",
+                glb: "vintageFan_animated.gltf"
             },
             {
                 id: 3,
@@ -529,27 +536,27 @@
             },
             {
                 id: 5,
-                name: "o tenis",
+                name: "o coração",
                 posx: -15,
                 posz: 20,
                 posy: 0,
                 variante: 0,
                 varianteX: 0,
-                scale: 5,
+                scale: 10,
                 url: "https://models.babylonjs.com/",
-                glb: "shoe_variants.glb",
+                glb: "emoji_heart.glb"
             },
             {
                 id: 6,
-                name: "o capacete de voo",
+                name: "a bola azul",
                 posx: -15,
                 posz: -20,
-                posy: 0,
+                posy: 0.4,
                 varianteX: 0,
                 variante: 0,
-                scale: 0.05,
-                url: "https://models.babylonjs.com/",
-                glb: "flightHelmet.glb",
+                scale: 1,
+                url: "https://models.babylonjs.com/Marble/marble/",
+                glb: "marble.gltf"
             },
             {
                 id: 7,
@@ -577,27 +584,28 @@
             },
             {
                 id: 9,
-                name: "a casa assombrada",
+                name: "a bola branca",
                 posx: -10,
                 posz: -25,
                 posy: 0.4,
                 varianteX: 0,
                 variante: 0,
-                scale: 5,
+                scale: 0.5,
                 url: "https://models.babylonjs.com/",
-                glb: "haunted_house.glb",
+                glb: "shaderBall.glb"
             },
             {
                 id: 10,
-                name: "busto humano",
+                name: "o tênis",
                 posx: 10,
                 posz: 5,
                 posy: 0.5,
+                posy: 0,
                 variante: 0,
                 varianteX: 0,
-                scale: 2,
-                url: "https://models.babylonjs.com/Lee-Perry-Smith-Head/",
-                glb: "head.glb"
+                scale: 3,
+                url:"https://models.babylonjs.com/",
+                glb:"shoe_variants.glb",
             },
         ];
 
@@ -610,13 +618,12 @@
                 function (newMeshes, particleSystems, skeletons, animationGroups) {
                     var itemsToCollect = newMeshes[0];
 
+                    itemsToCollect.name = item.id;
                     itemsToCollect.position.x = item.posx;
                     itemsToCollect.position.z = item.posz;
                     itemsToCollect.position.y = item.posy;
 
-                    // itemsToCollect.name = item.name;
-
-                    var cylinderItems = BABYLON.MeshBuilder.CreateCylinder(`collectBody${item.id}`, { height: 3 });
+                    let cylinderItems = BABYLON.MeshBuilder.CreateCylinder(`collectBody${item.id}`, { height: 3 });
 
                     cylinderItems.position.x = item.posx + item.varianteX;
                     cylinderItems.position.z = item.posz + item.variante;
@@ -624,29 +631,13 @@
                     cylinderItems.isVisible = false;
                     cylinderItems.addChild(itemsToCollect);
 
+
                     itemsToCollect.scaling.scaleInPlace(item.scale);
 
                     scene.addMesh(itemsToCollect);
 
-                    var collected = false;
-                    scene.onBeforeRenderObservable.add(() => {
-                        if (!collected) {
-                            if (cylinderItems.intersectsMesh(hero, true)) {
-                                console.log("Coletou")
-                                if (walked) {
-                                    collected = disposeItems(itemsToCollect, cylinderItems, item);
-                                }
-                            }
-                        }
-                    });
                 }
             );
-        };
-
-        const loadItems = (scene) => {
-            for (let i = 0; i < 10; i++) {
-                createItems(scene, items[i]);
-            }
         };
 
         const disposeItems = (itemsToCollect, cylinderItems, item) => {
@@ -673,9 +664,6 @@
         }
 
         const endGame = () => {
-            walkAnim.stop();
-            walkBackAnim.stop();
-
             document.getElementById("btnReload").style.display = "block";
             document.getElementById("message").innerHTML = "Fim de Jogo!";
 
@@ -688,9 +676,6 @@
             //Lock camera on the character 
             camera1.target = hero;
 
-            walkAnim.stop();
-            walkBackAnim.stop();
-
             //Get the Samba animation Group
             sambaAnim.start(
                 true,
@@ -699,8 +684,13 @@
                 sambaAnim.to,
                 false
             );
-
         }
+
+        const loadItems = (scene) => {
+            for (let i = 0; i < 10; i++) {
+                createItems(scene, items[i]);
+            }
+        };
 
         window.initFunction = async function () {
             var asyncEngineCreation = async function () {
