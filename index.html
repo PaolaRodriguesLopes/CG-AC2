@@ -271,7 +271,7 @@
                             keydown = true;
                             walked = true;
                         }
-                        if (inputMap["b"]) {
+                        if (inputMap["k"]) {
                             keydown = true;
                             walked = true;
                         }
@@ -289,7 +289,7 @@
                                         walkBackAnim.to,
                                         false
                                     );
-                                } else if (inputMap["b"]) {
+                                } else if (inputMap["k"]) {
                                     //Samba!
                                     sambaAnim.start(
                                         true,
@@ -317,7 +317,7 @@
                                 idleAnim.start(true, 1.0, idleAnim.from, idleAnim.to, false);
 
                                 //Stop all animations besides Idle Anim when no key is down
-                                sambaAnim.stop();
+                                // sambaAnim.stop();
                                 walkAnim.stop();
                                 walkBackAnim.stop();
 
@@ -463,7 +463,7 @@
             particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
             particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
 
-            // Size of each particle (random between...
+            // Size of each particle (random between...)
             particleSystem.minSize = 0.1;
             particleSystem.maxSize = 0.5;
 
