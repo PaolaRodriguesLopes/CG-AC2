@@ -84,7 +84,7 @@
         var hero = null;
         var area;
         var items = null;
-        var count = 0;
+        var count = 9;
         var camera1 = null;
         var engine = null;
         var sambaAnim = null;
@@ -660,7 +660,7 @@
 
             const bounce = new BABYLON.Sound("bounce", "./sounds/endGame.mp3", scene,
                 null, {
-                loop: false,
+                loop: true,
                 autoplay: true
             });
 
