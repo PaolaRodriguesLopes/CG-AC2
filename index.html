@@ -1,3 +1,6 @@
+<!--
+     Michel Micheloti 181003 | Paola Rodrigues Lopes 180115
+-->
 <!DOCTYPE html>
 <html>
 
@@ -271,10 +274,7 @@
                             keydown = true;
                             walked = true;
                         }
-                        if (inputMap["k"]) {
-                            keydown = true;
-                            walked = true;
-                        }
+                        
 
                         //Manage animations to be played
                         if (keydown) {
@@ -287,15 +287,6 @@
                                         1.0,
                                         walkBackAnim.from,
                                         walkBackAnim.to,
-                                        false
-                                    );
-                                } else if (inputMap["k"]) {
-                                    //Samba!
-                                    sambaAnim.start(
-                                        true,
-                                        1.0,
-                                        sambaAnim.from,
-                                        sambaAnim.to,
                                         false
                                     );
                                 } else {
@@ -342,7 +333,7 @@
             );
 
             loadItems(scene);
-            multipleBarrel(scene, 15);
+            multipleBarrel(scene, 20);
             buildMessage();
             return scene;
         };
