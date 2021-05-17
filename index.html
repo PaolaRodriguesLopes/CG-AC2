@@ -36,9 +36,11 @@
             height: 100%;
             touch-action: none;
         }
+
         .title {
-            position: absolute;           
+            position: absolute;
         }
+
         .format {
             background: #00000069;
             color: #ffffff;
@@ -48,11 +50,13 @@
             font-family: Arial, Helvetica, sans-serif;
             text-align: center;
         }
+
         .footer {
             position: fixed;
             left: 0;
-            bottom: 0;           
+            bottom: 0;
         }
+
         .btn {
             text-decoration: none;
             background: yellow;
@@ -65,11 +69,11 @@
 <body>
     <div class="title format">
         Michel Micheloti 181003 | Paola Rodrigues Lopes 180115
-    </div> 
+    </div>
     <div class="footer format">
         <p id="message"></p>
         <a class="btn" id="btnReload" href="/index.html" style="display: none;">Recomeçar</a>
-      </div> 
+    </div>
     <canvas id="renderCanvas"></canvas>
     <script>
         var canvas = document.getElementById("renderCanvas");
@@ -83,6 +87,7 @@
         var sambaAnim = null;
         var scene = null;
         var sceneToRender = null;
+        var cylinderItems = null;
         var createDefaultEngine = function () {
             return new BABYLON.Engine(canvas, true, {
                 preserveDrawingBuffer: true,
@@ -153,7 +158,7 @@
             skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
             skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
             skybox.material = skyboxMaterial;
-           
+
 
             // Enable physics
             scene.enablePhysics();
@@ -244,20 +249,20 @@
                         walked = false;
                         //Manage the movements of the character (e.g. position, direction)
                         if (inputMap["w"]) {
-                            if(isValidPosition (heroSpeed)){
+                            if (isValidPosition(heroSpeed)) {
                                 hero.moveWithCollisions(hero.forward.scaleInPlace(heroSpeed));
                                 keydown = true;
                                 walked = true;
-                            }                            
+                            }
                         }
                         if (inputMap["s"]) {
-                            if(isValidPosition (heroSpeed)){
-                                    hero.moveWithCollisions(
+                            if (isValidPosition(heroSpeed)) {
+                                hero.moveWithCollisions(
                                     hero.forward.scaleInPlace(-heroSpeedBackwards)
                                 );
                                 keydown = true;
                                 walked = true;
-                            }                            
+                            }
                         }
                         if (inputMap["a"]) {
                             hero.rotate(BABYLON.Vector3.Up(), -heroRotationSpeed);
@@ -308,7 +313,7 @@
                                 }
                             }
 
-                            
+
                         } else {
                             if (animating) {
                                 //Default animation is idle when no key is down
@@ -326,10 +331,12 @@
                     });
                 }
             );
-            
+
             loadItems(scene);
             multipleBarrel(scene, 15);
             buildMessage();
+            // console.log(scene.getMeshByName("alien"))
+            // console.log(scene)
             return scene;
         };
 
@@ -355,7 +362,7 @@
                 buildBarrel(scene, a, b);
             }
         }
-   
+
         const buildBarrel = (scene, posx, posz) => {
             BABYLON.SceneLoader.ImportMesh(
                 "",
@@ -394,15 +401,15 @@
         };
 
         const isValidPosition = (heroSpeed) => {
-       
+
             const heroScale = hero.forward.scaleInPlace(heroSpeed);
             const zIndex = heroScale.z < 0 ? -1 : 1;
             const xIndex = heroScale.x < 0 ? -1 : 1;
-        
+
             const nextPositionZ = hero.position.z + heroSpeed * zIndex;
             const nextPositionX = hero.position.x + heroSpeed * xIndex;
-        
-            const radius = Math.sqrt(Math.pow(nextPositionX,2) + Math.pow(nextPositionZ,2));
+
+            const radius = Math.sqrt(Math.pow(nextPositionX, 2) + Math.pow(nextPositionZ, 2));
             return radius <= 30.5;
         }
 
@@ -410,9 +417,9 @@
             // Make explosion sound
             const bounce = new BABYLON.Sound("bounce", "./sounds/Explosion-with-Metal-Debris.mp3", scene,
                 null, {
-                    loop: false,
-                    autoplay: true
-                });
+                loop: false,
+                autoplay: true
+            });
 
             // Generate particules
             setParticules(position);
@@ -430,7 +437,7 @@
                     s.disposeOnStop = true;
                 });
                 set.start();
-            });          
+            });
         }
 
         const createParticle = (item) => {
@@ -449,13 +456,12 @@
             particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
             particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
 
-            // Size of each particle (random between...
+            // Size of each particle
             particleSystem.minSize = 0.1;
             particleSystem.maxSize = 0.5;
 
             // Emission rate
             particleSystem.emitRate = 500;
-
             /******* Emission Space ********/
             particleSystem.createConeEmitter(radius, angle);
 
@@ -468,33 +474,32 @@
 
             // Start the particle system
             particleSystem.start();
-
         }
 
         items = [
             {
                 id: 1,
-                name: "a gaivota de fone",
+                name: "a calota de carro",
                 posx: 20,
                 posz: 10,
                 posy: 0.5,
-                scale: 0.001,
+                scale: 2,
                 varianteX: 0,
                 variante: 0.5,
-                url: "https://models.babylonjs.com/",
-                glb: "seagulf.glb"
+                url:"https://models.babylonjs.com/",
+                glb:"CarbonFiberWheel.glb",
             },
             {
                 id: 2,
-                name: "o ventilador",
+                name: "a cortina de bolinha",
                 posx: 25,
                 posz: 5,
                 posy: 0,
                 variante: 0,
                 varianteX: 0,
-                scale: 0.02,
-                url: "https://models.babylonjs.com/vintageDeskFan/",
-                glb: "vintageFan_animated.gltf"
+                scale: 5,
+                url:"https://models.babylonjs.com/",
+                glb:"PBR_Spheres.glb",
             },
             {
                 id: 3,
@@ -504,7 +509,7 @@
                 posy: 0,
                 variante: 0,
                 varianteX: 0,
-                scale: 0.1,
+                scale: 0.1, 
                 url: "https://models.babylonjs.com/",
                 glb: "shark.glb"
             },
@@ -522,27 +527,27 @@
             },
             {
                 id: 5,
-                name: "o coração",
+                name: "o tenis",
                 posx: -15,
                 posz: 20,
                 posy: 0,
                 variante: 0,
                 varianteX: 0,
-                scale: 10,
-                url: "https://models.babylonjs.com/",
-                glb: "emoji_heart.glb"
+                scale: 5,
+                url:"https://models.babylonjs.com/",
+                glb:"shoe_variants.glb",
             },
             {
                 id: 6,
-                name: "a bola azul",
+                name: "o capacete de voo",
                 posx: -15,
                 posz: -20,
-                posy: 0.4,
+                posy: 0,
                 varianteX: 0,
                 variante: 0,
-                scale: 1,
-                url: "https://models.babylonjs.com/Marble/marble/",
-                glb: "marble.gltf"
+                scale: 0.05,
+                url:"https://models.babylonjs.com/",
+                glb:"flightHelmet.glb",
             },
             {
                 id: 7,
@@ -570,27 +575,27 @@
             },
             {
                 id: 9,
-                name: "a bola branca",
+                name: "a casa assombrada",
                 posx: -10,
                 posz: -25,
                 posy: 0.4,
                 varianteX: 0,
                 variante: 0,
-                scale: 0.5,
-                url: "https://models.babylonjs.com/",
-                glb: "shaderBall.glb"
+                scale: 5,
+                url:"https://models.babylonjs.com/",
+                glb:"haunted_house.glb",
             },
             {
                 id: 10,
-                name: "o disco voador",
+                name: "busto humano",
                 posx: 10,
                 posz: 5,
                 posy: 0.5,
                 variante: 0,
                 varianteX: 0,
-                scale: 1,
-                url: "https://models.babylonjs.com/",
-                glb: "ufo.glb"
+                scale: 2,
+                url: "https://models.babylonjs.com/Lee-Perry-Smith-Head/",
+                glb: "head.glb"
             },
         ];
 
@@ -607,18 +612,17 @@
                     itemsToCollect.position.z = item.posz;
                     itemsToCollect.position.y = item.posy;
 
-                    let cylinderItems = BABYLON.MeshBuilder.CreateCylinder(`collectBody${item.id}`, { height: 3 });
+                    itemsToCollect.name = item.name;
+
+                    cylinderItems = BABYLON.MeshBuilder.CreateCylinder(`collectBody${item.id}`, { height: 3 });
 
                     cylinderItems.position.x = item.posx + item.varianteX;
                     cylinderItems.position.z = item.posz + item.variante;
                     cylinderItems.position.y = 1.5;
                     cylinderItems.isVisible = false;
                     cylinderItems.addChild(itemsToCollect);
-                    
 
                     itemsToCollect.scaling.scaleInPlace(item.scale);
-
-                    scene.addMesh(itemsToCollect);
 
                     var collected = false;
                     scene.onBeforeRenderObservable.add(() => {
@@ -630,16 +634,27 @@
                             }
                         }
                     });
-                   
+
+                    scene.addMesh(itemsToCollect);
+
                 }
             );
         };
 
-        const disposeItems = (itemsToCollect, cylinderItems, item) => {     
+        const loadItems = (scene) => {
+            for (let i = 0; i < 10; i++) {
+                createItems(scene, items[i]);
+            }
+            // createItems(scene, items[1]);
+            // createItems(scene, items[2]);
+            // createItems(scene, items[3]);
+        };
+
+        const disposeItems = (itemsToCollect, cylinderItems, item) => {
 
             if ((count + 1) === item.id) {
                 const bounce = new BABYLON.Sound("bounce", "./sounds/POP.mp3", scene,
-                null, {
+                    null, {
                     loop: false,
                     autoplay: true
                 });
@@ -648,44 +663,38 @@
                 createParticle(item);
 
                 count += 1;
-                if (count <= 9){
+                if (count <= 9) {
                     buildMessage();
-                } else{
+                } else {
                     endGame();
-                }                                
+                }
                 return true;
-            }            
+            }
             return false;
         }
 
-        const endGame = () =>{
+        const endGame = () => {
             document.getElementById("btnReload").style.display = "block";
             document.getElementById("message").innerHTML = "Fim de Jogo!";
 
             const bounce = new BABYLON.Sound("bounce", "./sounds/endGame.mp3", scene,
                 null, {
-                    loop: false,
-                    autoplay: true
-                });
+                loop: false,
+                autoplay: true
+            });
 
             //Lock camera on the character 
             camera1.target = hero;
 
             //Get the Samba animation Group
             sambaAnim.start(
-                        true,
-                        1.0,
-                        sambaAnim.from,
-                        sambaAnim.to,
-                        false
-                    );
+                true,
+                1.0,
+                sambaAnim.from,
+                sambaAnim.to,
+                false
+            );
         }
-
-        const loadItems = (scene) => {
-            for (let i = 0; i<10; i++){
-                createItems(scene,items[i]);                
-            }
-        };     
 
         window.initFunction = async function () {
             var asyncEngineCreation = async function () {
