@@ -85,6 +85,8 @@
         var camera1 = null;
         var engine = null;
         var sambaAnim = null;
+        var walkAnim = null;
+        var walkBackAnim = null;
         var scene = null;
         var sceneToRender = null;
         // var cylinderItems = null;
@@ -238,8 +240,8 @@
 
                     scene.addMesh(hero);
 
-                    const walkAnim = scene.getAnimationGroupByName("Walking");
-                    const walkBackAnim = scene.getAnimationGroupByName("WalkingBack");
+                    walkAnim = scene.getAnimationGroupByName("Walking");
+                    walkBackAnim = scene.getAnimationGroupByName("WalkingBack");
                     const idleAnim = scene.getAnimationGroupByName("Idle");
                     sambaAnim = scene.getAnimationGroupByName("Samba");
 
@@ -320,7 +322,7 @@
                                 idleAnim.start(true, 1.0, idleAnim.from, idleAnim.to, false);
 
                                 //Stop all animations besides Idle Anim when no key is down
-                                sambaAnim.stop();
+                                // sambaAnim.stop();
                                 walkAnim.stop();
                                 walkBackAnim.stop();
 
@@ -486,8 +488,8 @@
                 scale: 2,
                 varianteX: 0,
                 variante: 0.5,
-                url:"https://models.babylonjs.com/",
-                glb:"CarbonFiberWheel.glb",
+                url: "https://models.babylonjs.com/",
+                glb: "CarbonFiberWheel.glb",
             },
             {
                 id: 2,
@@ -498,8 +500,8 @@
                 variante: 0,
                 varianteX: 0,
                 scale: 5,
-                url:"https://models.babylonjs.com/",
-                glb:"PBR_Spheres.glb",
+                url: "https://models.babylonjs.com/",
+                glb: "PBR_Spheres.glb",
             },
             {
                 id: 3,
@@ -509,7 +511,7 @@
                 posy: 0,
                 variante: 0,
                 varianteX: 0,
-                scale: 0.1, 
+                scale: 0.1,
                 url: "https://models.babylonjs.com/",
                 glb: "shark.glb"
             },
@@ -534,8 +536,8 @@
                 variante: 0,
                 varianteX: 0,
                 scale: 5,
-                url:"https://models.babylonjs.com/",
-                glb:"shoe_variants.glb",
+                url: "https://models.babylonjs.com/",
+                glb: "shoe_variants.glb",
             },
             {
                 id: 6,
@@ -546,8 +548,8 @@
                 varianteX: 0,
                 variante: 0,
                 scale: 0.05,
-                url:"https://models.babylonjs.com/",
-                glb:"flightHelmet.glb",
+                url: "https://models.babylonjs.com/",
+                glb: "flightHelmet.glb",
             },
             {
                 id: 7,
@@ -582,8 +584,8 @@
                 varianteX: 0,
                 variante: 0,
                 scale: 5,
-                url:"https://models.babylonjs.com/",
-                glb:"haunted_house.glb",
+                url: "https://models.babylonjs.com/",
+                glb: "haunted_house.glb",
             },
             {
                 id: 10,
@@ -619,7 +621,7 @@
                     cylinderItems.position.x = item.posx + item.varianteX;
                     cylinderItems.position.z = item.posz + item.variante;
                     cylinderItems.position.y = 1.5;
-                    cylinderItems.isVisible = true;
+                    cylinderItems.isVisible = false;
                     cylinderItems.addChild(itemsToCollect);
 
                     itemsToCollect.scaling.scaleInPlace(item.scale);
@@ -671,6 +673,9 @@
         }
 
         const endGame = () => {
+            walkAnim.stop();
+            walkBackAnim.stop();
+
             document.getElementById("btnReload").style.display = "block";
             document.getElementById("message").innerHTML = "Fim de Jogo!";
 
@@ -683,6 +688,9 @@
             //Lock camera on the character 
             camera1.target = hero;
 
+            walkAnim.stop();
+            walkBackAnim.stop();
+
             //Get the Samba animation Group
             sambaAnim.start(
                 true,
@@ -691,6 +699,7 @@
                 sambaAnim.to,
                 false
             );
+
         }
 
         window.initFunction = async function () {
